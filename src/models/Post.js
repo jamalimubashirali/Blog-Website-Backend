@@ -14,7 +14,10 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  featuredImage: String,
+  featuredImage: {
+    type : String,
+    required : true
+  },
   status: {
     type: String,
     enum: ['draft', 'active'],
