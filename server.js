@@ -1,14 +1,12 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from './config/db.js';
-import authRoutes from './routes/authRoutes.js';
-import postRoutes from './routes/postRoutes.js';
-import fileRoutes from './routes/fileRoutes.js';
-import { errorHandler } from './middleware/errorHandler.js';
+import connectDB from './src/config/db.js';
+import authRoutes from './src/routes/authRoutes.js'
+import postRoutes from './src/routes/postRoutes.js'
+import { errorHandler } from './src/middlewares/errorHandler.js';
 
 dotenv.config();
-connectDB();
 
 const app = express();
 
@@ -18,11 +16,12 @@ app.use('/uploads', express.static('uploads'));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
-app.use('/api/files', fileRoutes);
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => 
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
-);
+const PORT = process.env.PORT || 3000;
+connectDB().then(() => {
+  app.listen(PORT, () => 
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
+  );
+}).catch((error) => console.log(error));

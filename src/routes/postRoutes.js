@@ -5,8 +5,8 @@ import {
   deletePost,
   getPost,
   getPosts
-} from '../controllers/postController.js';
-import { protect } from '../middleware/auth.js';
+} from '../controllers/postConroller.js';
+import { protect } from '../middlewares/auth.js';
 
 const router = express.Router();
 
