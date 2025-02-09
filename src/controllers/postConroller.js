@@ -2,7 +2,6 @@ import asyncHandler from 'express-async-handler';
 import Post from '../models/Post.js';
 import { deleteFromCloudinary, uploadOnCloudinary } from '../utils/cloudinary.js';
 
-// @desc    Create new post
 const createPost = asyncHandler(async (req, res) => {
   const { title, slug, content , status } = req.body;
 
@@ -39,12 +38,14 @@ const createPost = asyncHandler(async (req, res) => {
   res.status(201).json(post);
 });
 
-// @desc    Update post
 const updatePost = asyncHandler(async (req, res) => {
   const post = await Post.findOne({ slug: req.params.slug });
   if (!post) {
-    return res.status(404);
-    throw new Error('Post not found');
+    return res.status(404).json(
+      {
+        message : "Post not found"
+      }
+    );
   }
 
   if(req.files?.featuredImage){
@@ -78,7 +79,6 @@ const updatePost = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Delete post
 const deletePost = asyncHandler(async (req, res) => {
   const post = await Post.findOneAndDelete({ slug: req.params.slug });
   if (!post) {
@@ -92,13 +92,12 @@ const deletePost = asyncHandler(async (req, res) => {
   res.json({ message: 'Post removed' });
 });
 
-// @desc    Get single post
+
 const getPost = asyncHandler(async (req, res) => {
   const post = await Post.findOne({ slug: req.params.slug });
   res.json(post);
 });
 
-// @desc    Get all posts
 const getPosts = asyncHandler(async (req, res) => {
   const { status } = req.query;
   const query = status ? { status } : {};
