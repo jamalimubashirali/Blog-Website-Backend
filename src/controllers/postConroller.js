@@ -11,6 +11,7 @@ const createPost = asyncHandler(async (req, res) => {
     })
   }
 
+  
   const file = req.files?.featuredImage[0].path;
 
   if(!file){
