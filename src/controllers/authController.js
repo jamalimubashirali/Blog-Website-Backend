@@ -43,7 +43,7 @@ const login = asyncHandler(async (req, res) => {
       user: {
         name: user.name,
         email: user.email,
-        id: user._id,
+        _id: user._id,
       },
     });
   } else {
