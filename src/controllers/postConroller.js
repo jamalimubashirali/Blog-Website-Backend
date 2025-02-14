@@ -1,39 +1,43 @@
-import asyncHandler from 'express-async-handler';
-import Post from '../models/Post.js';
-import { deleteFromCloudinary, uploadOnCloudinary } from '../utils/cloudinary.js';
+import asyncHandler from "express-async-handler";
+import Post from "../models/Post.js";
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../utils/cloudinary.js";
 
 const createPost = asyncHandler(async (req, res) => {
-  const { title, slug, content , status } = req.body;
+  const { title, slug, content, status } = req.body;
 
-  if(!(title && slug && content )){
+  if (!(title && slug && content)) {
     res.status(400).json({
-      message : "Please add all the required fields"
-    })
+      message: "Please add all the required fields",
+    });
   }
 
-  
   const file = req.files?.featuredImage[0].path;
 
-  if(!file){
+  if (!file) {
     res.status(400).json({
-      message : "Please add the featuredImage"
+      message: "Please add the featuredImage",
     });
   }
 
   const featuredImage = await uploadOnCloudinary(file).catch((error) => {
     res.status(500).json({
-      message : "Server error, failed to upload the file on cloudinary"
-    })
-    throw new Error(`An error occured during the upload of the on the cloudnary`)
+      message: "Server error, failed to upload the file on cloudinary",
+    });
+    throw new Error(
+      `An error occured during the upload of the on the cloudnary`
+    );
   });
-  
+
   const post = await Post.create({
     title,
     slug,
     content,
-    featuredImage : featuredImage?.url,
+    featuredImage: featuredImage?.url,
     status,
-    userId: req.user._id
+    userId: req.user._id,
   });
 
   res.status(201).json(post);
@@ -42,40 +46,40 @@ const createPost = asyncHandler(async (req, res) => {
 const updatePost = asyncHandler(async (req, res) => {
   const post = await Post.findOne({ slug: req.params.slug });
   if (!post) {
-    return res.status(404).json(
-      {
-        message : "Post not found"
-      }
-    );
+    return res.status(404).json({
+      message: "Post not found",
+    });
   }
 
-  if(req.files?.featuredImage){
-    const publicId = post?.featuredImage.split('/').pop().split('.')[0];
+  if (req.files?.featuredImage) {
+    const publicId = post?.featuredImage.split("/").pop().split(".")[0];
 
     const response = await deleteFromCloudinary(publicId);
 
-    if(!response){
+    if (!response) {
       return res.status(500).json({
-        message : "Error updating the file"
+        message: "Error updating the file",
       });
     }
 
-    const featuredImage = await uploadOnCloudinary(req.files?.featuredImage[0].path);
-  
+    const featuredImage = await uploadOnCloudinary(
+      req.files?.featuredImage[0].path
+    );
+
     const updatedPost = await Post.findOneAndUpdate(
       { slug: req.params.slug },
-      {...req.body , featuredImage : featuredImage.url},
+      { ...req.body, featuredImage: featuredImage.url },
       { new: true }
     );
-  
+
     return res.json(updatedPost);
   } else {
     const updatedPost = await Post.findOneAndUpdate(
       { slug: req.params.slug },
-      {...req.body},
+      { ...req.body },
       { new: true }
     );
-    
+
     return res.json(updatedPost);
   }
 });
@@ -84,15 +88,14 @@ const deletePost = asyncHandler(async (req, res) => {
   const post = await Post.findOneAndDelete({ slug: req.params.slug });
   if (!post) {
     res.status(404);
-    throw new Error('Post not found');
+    throw new Error("Post not found");
   }
 
-  const publicId = post?.featuredImage.split('/').pop().split('.')[0];
+  const publicId = post?.featuredImage.split("/").pop().split(".")[0];
   const response = await deleteFromCloudinary(publicId);
 
-  res.json({ message: 'Post removed' });
+  res.json({ message: "Post removed" });
 });
-
 
 const getPost = asyncHandler(async (req, res) => {
   const post = await Post.findOne({ slug: req.params.slug });
@@ -100,8 +103,8 @@ const getPost = asyncHandler(async (req, res) => {
 });
 
 const getPosts = asyncHandler(async (req, res) => {
-  const { status } = req.query;
-  const query = status ? { status } : {};
+  const { userId } = req.query;
+  const query = userId ? { userId } : {};
   const posts = await Post.find(query);
   res.json(posts);
 });

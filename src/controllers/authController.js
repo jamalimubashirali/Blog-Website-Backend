@@ -65,7 +65,7 @@ const logout = asyncHandler(async (req, res) => {
 
 const getMe = asyncHandler(async (req, res) => {
   res.status(200).json({
-    user : req.user
+    user: req.user,
   });
 });
 
